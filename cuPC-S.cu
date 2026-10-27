@@ -6011,3 +6011,8 @@ __device__  void IthCombination(int out[], int N, int P, long long L)
     }
     out[P1] = out[P1 - 1] + (int)(L - k);
 }
+// ===== Extended levels (fork for CITS, 2026-10): appended; everything above is the 64-bit cuPC source =====
+#include "ext_levels.cuh"
+
+// API version that CITS reads when it loads this library (cits >= 1.10.0). Increase it when the ext_* API changes.
+extern "C" int cupc_cits_version(void) { return 1; }

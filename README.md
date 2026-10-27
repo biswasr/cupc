@@ -1,3 +1,44 @@
+# cuPC, fork for CITS
+
+This fork of [cuPC](https://github.com/LIS-Laboratory/cupc) (Zarebavani et al. 2020) is the GPU backend of [CITS](https://github.com/abbasilab/cits) from version 1.10.0. It keeps cuPC's original `Skeleton()` function and adds two changes.
+
+1. **64-bit combination counters.** The original kernels count conditioning sets in 32-bit integers. The count overflows once a variable has many neighbours (from degree 1,627 at level 3 down to 31 at level 14). Some tests were then skipped, and edges that should have been removed survived.
+2. **No cap on the conditioning-set size.** The original code stops at level 14. A new generic kernel tests any level, so the PC-stable search runs until no variable has enough neighbours. It computes partial correlations by an incremental Cholesky and applies cuPC's exact Fisher-z rule near the threshold. Every kernel launch is checked, and every removed edge is logged with its separating set.
+
+The new kernel rebuilt 229 skeletons of a large calcium-imaging study exactly, including 1,690 edges removed above level 14. It ran about 460 times faster than the original kernels with a CPU continuation above level 14.
+
+## Build
+
+```
+git clone https://github.com/biswasr/cupc
+cd cupc
+nvcc -O3 --shared -Xcompiler -fPIC -o Skeleton.so cuPC-S.cu
+```
+
+The build needs the CUDA toolkit and takes about 30 s. CITS finds `Skeleton.so` through `CUPC_DIR`, `cits.set_cupc_dir()` or `~/repos/cupc` (see the CITS README). It reads `cupc_cits_version()` to check that the library comes from this fork.
+
+## C interface
+
+`Skeleton()` is unchanged, so cuPC's R wrapper (`cuPC.R`) works as before. It gains the 64-bit fix but keeps the level-14 cap. The `ext_*` functions in `ext_levels.cuh` run one level per call, and CITS calls them from Python.
+
+- `ext_create(C, n, has_old)` copies the correlation matrix to the GPU and returns a handle.
+- `ext_level0(h, th0)` runs level 0 (marginal tests) as `Skeleton()` does.
+- `ext_scan(h, rowsize, nprime)` compacts the adjacency and returns the row sizes and their maximum.
+- `ext_level_new(h, l, th, ...)` tests every size-l subset with the generic kernel and logs each removal (X, Y, separating set, partial correlation).
+- `ext_level_old(h, l, th)` runs the original kernel of level l from 1 to 14, for comparisons.
+- `ext_get_G(h, G)` and `ext_set_G(h, G)` copy the adjacency matrix out and in.
+- `ext_destroy(h)` frees the GPU memory.
+
+Each returns 0 on success and a negative code on a CUDA error.
+
+## License
+
+GNU GPL version 3, as the original cuPC. The changes are listed at the top of `cuPC-S.cu` and `cuPC-S.h`. `ext_levels.cuh` is a new file.
+
+---
+
+*The original cuPC README follows.*
+
 # cuPC
 cuPC is a CUDA-based parallel implementation of PC-stable algorithm for causal structure learning on GPU. The main highlights of cuPC are as follows:
 * Easy usage.

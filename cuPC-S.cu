@@ -1,3 +1,12 @@
+/*
+ * Modified by Rahul Biswas, October 2026 (fork for CITS; see README.md).
+ * - 64-bit combination counters: BINOM, IthCombination, NumOfComb, NumOfGivenJump and the d1 loops
+ *   used 32-bit int, which overflows once a variable has many neighbours (from degree 1,627 at level 3
+ *   down to 31 at level 14). Tests were then skipped and removable edges survived.
+ * The Skeleton() signature is unchanged. Original cuPC: Zarebavani et al. (2020),
+ * https://github.com/LIS-Laboratory/cupc, licensed under the GNU GPL version 3. This file remains
+ * under the GNU GPL version 3.
+ */
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
@@ -251,7 +260,7 @@ __global__ void cal_Indepl1(double *C, int *G, int *GPrime, int *mutex, int* Sep
     int NbrIdx;
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
+    long long NumOfGivenJump;
     __shared__ int NoEdgeFlag;
     double M0;
     double H[2][2];
@@ -282,7 +291,7 @@ __global__ void cal_Indepl1(double *C, int *G, int *GPrime, int *mutex, int* Sep
         NumOfGivenJump = SizeOfArr / (ParGivenL1 * NumOfBlockForEachNodeL1) + 1;
     }
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -333,8 +342,8 @@ __global__ void cal_Indepl2(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdx[2];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     double M0;
     double M1[2][2];
@@ -376,7 +385,7 @@ __global__ void cal_Indepl2(double *C, int *G, int* GPrime, int *mutex, int* Sep
         NumOfGivenJump = NumOfComb / (ParGivenL2 * NumOfBlockForEachNodeL2) + 1;
     }
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -444,8 +453,8 @@ __global__ void cal_Indepl3(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[3];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[3];
     double M0;
@@ -486,7 +495,7 @@ __global__ void cal_Indepl3(double *C, int *G, int* GPrime, int *mutex, int* Sep
         NumOfGivenJump = NumOfComb / (ParGivenL3 * NumOfBlockForEachNodeL3) + 1;
     }
     __syncthreads();
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -576,8 +585,8 @@ __global__ void cal_Indepl4(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[4];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[4];
 
@@ -623,7 +632,7 @@ __global__ void cal_Indepl4(double *C, int *G, int* GPrime, int *mutex, int* Sep
         NumOfGivenJump = NumOfComb / (ParGivenL4 * NumOfBlockForEachNodeL4) + 1;
     }
     __syncthreads();
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -729,8 +738,8 @@ __global__ void cal_Indepl5(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[5];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[5];
 
@@ -775,7 +784,7 @@ __global__ void cal_Indepl5(double *C, int *G, int* GPrime, int *mutex, int* Sep
         NumOfGivenJump = NumOfComb / (ParGivenL5 * NumOfBlockForEachNodeL5) + 1;
     }
     
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -896,8 +905,8 @@ __global__ void cal_Indepl6(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[6];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[6];
 
@@ -944,7 +953,7 @@ __global__ void cal_Indepl6(double *C, int *G, int* GPrime, int *mutex, int* Sep
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1079,8 +1088,8 @@ __global__ void cal_Indepl7(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[7];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[7];
 
@@ -1128,7 +1137,7 @@ __global__ void cal_Indepl7(double *C, int *G, int* GPrime, int *mutex, int* Sep
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1283,8 +1292,8 @@ __global__ void cal_Indepl8(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[8];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[8];
 
@@ -1332,7 +1341,7 @@ __global__ void cal_Indepl8(double *C, int *G, int* GPrime, int *mutex, int* Sep
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1505,8 +1514,8 @@ __global__ void cal_Indepl9(double *C, int *G, int* GPrime, int *mutex, int* Sep
     int NbrIdxPointer[9];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[9];
 
@@ -1553,7 +1562,7 @@ __global__ void cal_Indepl9(double *C, int *G, int* GPrime, int *mutex, int* Sep
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1658,8 +1667,8 @@ __global__ void cal_Indepl10(double *C, int *G, int* GPrime, int *mutex, int* Se
     int NbrIdxPointer[10];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[10];
 
@@ -1707,7 +1716,7 @@ __global__ void cal_Indepl10(double *C, int *G, int* GPrime, int *mutex, int* Se
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1814,8 +1823,8 @@ __global__ void cal_Indepl11(double *C, int *G, int* GPrime, int *mutex, int* Se
     int NbrIdxPointer[11];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[11];
 
@@ -1863,7 +1872,7 @@ __global__ void cal_Indepl11(double *C, int *G, int* GPrime, int *mutex, int* Se
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -1971,8 +1980,8 @@ __global__ void cal_Indepl12(double *C, int *G, int* GPrime, int *mutex, int* Se
     int NbrIdxPointer[12];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[12];
 
@@ -2020,7 +2029,7 @@ __global__ void cal_Indepl12(double *C, int *G, int* GPrime, int *mutex, int* Se
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -2129,8 +2138,8 @@ __global__ void cal_Indepl13(double *C, int *G, int* GPrime, int *mutex, int* Se
     int NbrIdxPointer[13];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[13];
 
@@ -2178,7 +2187,7 @@ __global__ void cal_Indepl13(double *C, int *G, int* GPrime, int *mutex, int* Se
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -2289,8 +2298,8 @@ __global__ void cal_Indepl14(double *C, int *G, int* GPrime, int *mutex, int* Se
     int NbrIdxPointer[14];
     int SizeOfArr;
     int NumberOfJump;
-    int NumOfGivenJump;
-    int NumOfComb;
+    long long NumOfGivenJump;
+    long long NumOfComb;
     __shared__ int NoEdgeFlag;
     int NbrIdx[14];
 
@@ -2338,7 +2347,7 @@ __global__ void cal_Indepl14(double *C, int *G, int* GPrime, int *mutex, int* Se
     }
     
 
-    for(int d1 = 0; d1 < NumOfGivenJump; d1++){
+    for(long long d1 = 0; d1 < NumOfGivenJump; d1++){
         __syncthreads();
         if(NoEdgeFlag == 1){
             return;
@@ -5957,9 +5966,9 @@ __device__ void inverse(double M2[][3], double M2Inv[][3])
 }
 
 
-__device__ void BINOM(int n, int k, int *out)
+__device__ void BINOM(int n, int k, long long *out)
 {
-    int P, N1, R;
+    long long P, N1, R;
     // between n - k and k, N1 should be Max(n-k, k) and P should be Min(n-k, k);
     N1 = k;
     P = n - k;
@@ -5982,12 +5991,12 @@ __device__ void BINOM(int n, int k, int *out)
     *out = R; 
 }
 
-__device__  void IthCombination(int out[], int N, int P, int L)
+__device__  void IthCombination(int out[], int N, int P, long long L)
 {
     //The out[p] can be calculated  using formula out[p] = out[p - 1] + L - K. note that out[p] is in 1-base indexing
     int P1 = P - 1;
-    int R;
-    int k = 0;
+    long long R;
+    long long k = 0;
     for (int i = 0; i < P1; i++){
         out[i] = 0;
         if(i > 0){
@@ -6000,5 +6009,5 @@ __device__  void IthCombination(int out[], int N, int P, int L)
         }
         k = k - R;
     }
-    out[P1] = out[P1 - 1] + L - k;
+    out[P1] = out[P1 - 1] + (int)(L - k);
 }

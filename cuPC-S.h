@@ -1,4 +1,13 @@
 /*
+ * Modified by Rahul Biswas, October 2026 (fork for CITS; see README.md).
+ * - 64-bit combination counters: BINOM, IthCombination, NumOfComb, NumOfGivenJump and the d1 loops
+ *   used 32-bit int, which overflows once a variable has many neighbours (from degree 1,627 at level 3
+ *   down to 31 at level 14). Tests were then skipped and removable edges survived.
+ * The Skeleton() signature is unchanged. Original cuPC: Zarebavani et al. (2020),
+ * https://github.com/LIS-Laboratory/cupc, licensed under the GNU GPL version 3. This file remains
+ * under the GNU GPL version 3.
+ */
+/*
  * cuPC_S.h
  *
  *  Created on: Apr 16, 2019
@@ -83,8 +92,8 @@ __global__ void Initialize (int *Mat, int n);
 __global__ void scan_compact(int* G_Compact,  const int* G, const int n, int *nprime);
 __global__ void SepSet_initialize(int *SepSet, int size);
 
-__device__ void BINOM(int n, int k, int *out);
-__device__ void IthCombination(int out[], int N, int P, int L);
+__device__ void BINOM(int n, int k, long long *out);
+__device__ void IthCombination(int out[], int N, int P, long long L);
 __device__ double PYTHAG(double a, double b);
 __device__ void inverse(double M2[][3], double M2Inv[][3]);
 
